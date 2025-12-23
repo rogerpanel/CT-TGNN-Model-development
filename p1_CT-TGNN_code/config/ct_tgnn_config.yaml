@@ -1,0 +1,107 @@
+# CT-TGNN Configuration File
+# For IEEE Q1 Journal Reproducibility
+
+# Model Configuration
+model:
+  name: "CT-TGNN"
+  node_feat_dim: 256
+  edge_feat_dim: 87
+  hidden_dim: 256
+  num_ode_blocks: 2
+  num_gnn_layers: 2
+  num_scales: 4
+  time_constants: [1.0e-6, 1.0e-3, 1.0, 3600.0]
+  num_classes: 2
+
+  # ODE Solver Settings
+  solver: "dopri5"
+  rtol: 1.0e-3
+  atol: 1.0e-4
+  adjoint: true
+
+  # Temporal Adaptive BatchNorm
+  tabn:
+    time_encoding_dim: 64
+    use_periodic: true
+    omega: 7.27e-5  # 2*pi / 86400 (daily periodicity)
+
+  # Point Process
+  point_process:
+    num_layers: 4
+    num_heads: 8
+    num_event_types: 10
+    max_seq_len: 1024
+
+# Training Configuration
+training:
+  batch_size: 64
+  num_epochs: 100
+  learning_rate: 1.0e-3
+  weight_decay: 1.0e-4
+  lr_scheduler: "cosine"
+  warmup_epochs: 5
+
+  # Loss Weights
+  loss_weights:
+    classification: 1.0
+    point_process: 0.5
+    lipschitz_reg: 1.0e-3
+    sparse_reg: 1.0e-4
+
+  # Class Weights
+  use_class_weights: true
+
+  # Gradient Clipping
+  grad_clip: 1.0
+
+# Data Configuration
+data:
+  dataset: "microservices"  # Options: microservices, iot23, unsw
+  data_dir: "./data/processed"
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  num_workers: 8
+  pin_memory: true
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - auroc
+    - auprc
+  save_predictions: true
+  generate_plots: true
+
+# Zero-Trust Configuration
+zero_trust:
+  enable_continuous_auth: true
+  threat_threshold: 0.5
+  enable_predictive: true
+  lookahead_horizon: 300  # seconds
+
+# Federated Learning
+federated:
+  enable: false
+  num_clients: 5
+  local_epochs: 3
+  aggregation: "fedavg"
+
+# Logging
+logging:
+  log_dir: "./logs"
+  tensorboard: true
+  wandb:
+    enable: false
+    project: "ct-tgnn"
+
+  checkpoint_dir: "./checkpoints"
+  save_every_n_epochs: 5
+  keep_best_k: 3
+
+# Reproducibility
+seed: 42
+deterministic: true
