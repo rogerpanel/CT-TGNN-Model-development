@@ -1,0 +1,44 @@
+# CT-TGNN experiment configuration.
+# Nothing here encodes an expected result. All numbers are inputs.
+
+data:
+  # Set to the kagglehub download path, e.g.
+  #   /kaggle/input/integrated-idps-security-3datasets
+  path: /kaggle/input/integrated-idps-security-3datasets
+
+  # Leave null to auto-detect; override after running src.data.inspect
+  # if the detected columns are wrong.
+  columns:
+    src_ip: null
+    dst_ip: null
+    timestamp: null
+    label: null
+    duration: null
+
+  max_rows: null          # cap rows for a fast smoke run
+  splits: [0.70, 0.15, 0.15]   # CHRONOLOGICAL, never shuffled
+  tau_idle: 15.0          # edge idle timeout (s)
+  tau_active: 1800.0      # edge max lifetime (s)
+  window_seconds: 60.0    # evaluation window
+  max_windows: null
+  max_features: 64
+
+model:
+  hidden_dim: 128
+  n_blocks: 2
+  taus: [1.0e-6, 1.0e-3, 1.0, 3600.0]
+  dropout: 0.1
+  solver: dopri5
+  rtol: 1.0e-5
+  atol: 1.0e-5
+  use_adjoint: true
+  spectral_norm: true
+  point_process: true
+
+train:
+  epochs: 20
+  lr: 1.0e-3
+  wd: 1.0e-4
+  patience: 5
+  class_weighting: true
+  edgebank_window: null
